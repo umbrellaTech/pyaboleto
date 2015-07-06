@@ -1,4 +1,4 @@
-# Yet Another Boleto
+# yaboletopython
 Yet Another Boleto - Python Edition
 
 
@@ -9,7 +9,7 @@ boletos e não os templates. O YaBoleto Python é uma reescrita do YaBoleto PHP 
 ### pip
 TODO
 ```
-$ composer require yaboleto
+$ pip install yaboletopython
 ```
 ## Bancos suportados
 Atualmente o YaBoleto Python funciona com os seguintes bancos:
