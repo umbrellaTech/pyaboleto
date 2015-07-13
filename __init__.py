@@ -23,8 +23,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 __author__ = 'Kelson da Costa Medeiros <kelsoncm@gmail.com>'
 
-
 from datetime import date
+import re
 
 
 def modulo11(numero, if_dez='0', if_zero='0', mascarado=False, max_fator=9, separador='-'):
@@ -39,24 +39,31 @@ def modulo11(numero, if_dez='0', if_zero='0', mascarado=False, max_fator=9, sepa
         resto = if_dez
     elif resto == 0:
         resto = if_zero
-    return resto if not mascarado else '%s%s%s' % (numero, separador, resto)
+    return str(resto if not mascarado else '%s%s%s' % (numero, separador, resto))
 
+
+# def modulo10(number):
+#     soma = 0
+#     fato = 2
+#     for c in reversed(number):
+#         soma += int(c) * fato
+#         fato = 2 if fato == 1 else 1
+#
+#     resto = soma % 10
+#     return str(10 - resto if resto != 0 else 0)
 
 def modulo10(number):
     soma = 0
     fato = 2
     for c in reversed(number):
-        soma += int(c) * fato
+        tmp = int(c) * fato
+        if tmp > 9:
+            tmp = tmp - 10 + 1
+        soma += tmp
         fato = 2 if fato == 1 else 1
 
     resto = soma % 10
-    return 10 - resto if resto != 0 else 0
-
-
-def fator_vencimento(data):
-    data_base = date(1997, 10, 7)
-    delta = data - data_base
-    return delta.days
+    return str(10 - resto if resto != 0 else 0)
 
 
 def put_at(string, at, char):
@@ -65,8 +72,18 @@ def put_at(string, at, char):
     return "".join(lst)
 
 
-def apply_mask():
-    pass
+def apply_mask(text, mask):
+    special = ('/', '.', '-', '_', ' ')
+
+    buff = ''
+    i = 0
+    for c in mask:
+        if c in special:
+            buff += c
+        elif c == '0':
+            buff += text[i]
+            i += 1
+    return buff
 
 
 class Endereco:
@@ -136,29 +153,14 @@ class Banco:
     Classe abstrata que representa um banco.
     """
 
-        # ban = Banco('001', 'Banco do Brasil', '1234-5', '12.345-6')
+    # ban = Banco('001', 'Banco do Brasil')
 
-    def __init__(self, numero, nome, agencia, conta):
+    def __init__(self, numero, nome):
         self.numero = numero
         self.nome = nome
-        self.agencia = agencia
-        self.conta = conta
-        self.codigo = modulo11(self.numero)
-
-    def __str__(self):
-        return "%s (%s) %s: %s/%s" % (self.numero, self.codigo, self.nome, self.agencia, self.conta)
-
-
-class Carteira:
-
-    # car = Carteira(123456789)
-
-    def __init__(self, numero):
-        self.numero = numero
 
     def __str__(self):
         return "%s" % self.numero
-
 
 class Convenio:
     """
@@ -167,125 +169,133 @@ class Convenio:
 
     # con = Convenio(ban, car, '123456', '12345678')
 
-    def __init__(self, banco, carteira, numero_convenio, nosso_numero):
-        self.banco = banco
+    def __init__(self, numero, carteira, banco, agencia, conta):
         self.carteira = carteira
-        self.numero_convenio = numero_convenio
-        self.nosso_numero = nosso_numero
+        self.numero = numero
+        self.banco = banco
+        self.agencia = agencia
+        self.conta = conta
 
     def __str__(self):
-        return "%s - %s, %s" % (self.banco, self.carteira, self.numero_convenio)
-
-    def gerar_campo_livre(self):
-        raise NotImplementedError()
-
-    @property
-    def tamanhos(self):
-        raise NotImplementedError()
-
-    @property
-    def layout(self):
-        raise NotImplementedError()
+        return "%s - %s, %s - %s - %s" % (self.numero, self.carteira, self.banco, self.agencia, self.conta)
 
 class Boleto:
     """
     Classe abstrata que representa um boleto.
     """
-    def __init__(self, sacado, cedente, convenio, valor_documento, data_vencimento, data_documento, numero_documento):
+
+    DATA_BASE = date(1997, 10, 7)
+
+    # bol = Boleto(sac, ced, con, 123.45, date(2015, 12, 12), '123456789')
+
+    def __init__(self, nosso_numero, data_vencimento, valor_documento, convenio, cedente, sacado):
         self.sacado = sacado
         self.cedente = cedente
         self.convenio = convenio
         self.valor_documento = valor_documento
         self.data_vencimento = data_vencimento
-        self.data_documento = data_documento
-        self.numero_documento = numero_documento
-        self.taxa = None
-        self.desconto = None
-        self.outra_deducoes = None
-        self.multa = None
-        self.outros_acrescimos = None
-        self.instrucoes = None
-        self.demonstrativo = None
-        self.quantidade = None
+        self.data_documento = date.today()
+        self.nosso_numero = nosso_numero
+        self.taxa = 0
+        self.desconto = 0
+        self.outra_deducoes = 0
+        self.multa = 0
+        self.outros_acrescimos = 0
+        self.instrucoes = ''
+        self.demonstrativo = ''
+        self.quantidade = 0
         self.aceite = None
         self.especie = None
         self.local_pagamento = None
-        self.codigo_barras = None
-        self.linha_digitavel = None
-        self.mascara = "00000.00000 00000.000000 00000.000000 0 00000000000000"
         self.erros = []
-        self.moeda = 9
+        self.moeda = '9'
 
     def __str__(self):
         return self.linha_digitavel
 
     @property
     def total(self):
-        return (self.valorDocumento + self.taxa + self.outrosAcrescimos) - (self.desconto + self.outrasDeducoes)
-    
-    def gerar_codigo_barras(self):
-        convenio = self.convenio
-        banco = convenio.banco
-        total = self.total
+        return (self.valor_documento + self.taxa + self.outros_acrescimos) - (self.desconto + self.outra_deducoes)
 
-        if total < 0:
-            raise Exception("Valor total do boleto não pode ser negativo")
+    @property
+    def fator_vencimento(self):
+        delta = self.data_vencimento - Boleto.DATA_BASE
+        return str.zfill(str(delta.days), 4)
 
-        valor = total * 100
-        agencia = banco.agencia[0, 4]
-        conta = banco.conta[0, 4]
+    @property
+    def campo_livre(self):
+        raise NotImplementedError()
 
-        dados = {
-            'banco_numero': banco.numero,
-            'moeda': self.moeda,
-            'valor': valor,
-            'agencia': agencia,
-            'convenio_carteira_numero': convenio.carteira.numero,
-            'conta': conta,
-            'convenio_nosso_numero': convenio.nosso_numero,
-            'fator_vencimento': fator_vencimento(self.data_vencimento),
-            'numero_convenio': convenio.numero_convenio
-        }
+    @property
+    def valor_plano(self):
+        return str.zfill(str(int(self.total * 100)), 10)
 
-        convenio.gerar_campo_livre(dados)
-
-        tamanhos = convenio.tamanhos
-
-        for key, size in tamanhos.items():
-            dados[key] = str(dados[key]).zfill(size)[:size]
-
-        # convenio.setNossoNumero(dados['NossoNumero'])
-
-        temp_codigo_barras = convenio.layout.format(dados)
-
-        dv = modulo11(temp_codigo_barras, 1, 1)
-
-        codigo_barras = put_at(temp_codigo_barras, 4, dv)
-        return codigo_barras
-
-    def gerar_linha_digitavel(self, codigo_barras):
+    @property
+    def codigo_barras(self):
         """
-        Gera a linha digitável baseado em um código de barras.
+        Campo Livre definido por cada banco.
+        Os outros campos do código de barras é fixo. A linha digitável também é fixo.
+
+        Posição  #   Conteúdo
+        01 a 03  03  Número do banco
+        04       01  Código da Moeda - 9 para Real
+        05       01  Digito verificador do Código de Barras
+        06 a 09  04  Data de vencimento em dias a partir de 07/10/1997
+        10 a 19  10  Valor do boleto (8 inteiros e 2 decimais)
+        20 a 44  25  Campo Livre definido por cada banco
+        Total    44
         """
-        # # Campo1 - Posições de 1-4 e 20-24
-        # # Campo2 - Posições 25-34
-        # # Campo3 - Posições 35-44
-        # # Campo4 - Posição 5
-        # # Campo5 - Posições 6-19
-        # linha_digitavel = codigo_barras[0, 4] + \
-        #                  codigo_barras[19, 5] + \
-        #                  codigo_barras[24, 10] + \
-        #                  codigo_barras[34, 10] + \
-        #                  codigo_barras[4, 1] + \
-        #                  codigo_barras[5, 14]
-        #
-        # dv1 = modulo10(linha_digitavel[0, 9])
-        # dv2 = modulo10(linha_digitavel[9, 10])
-        # dv3 = modulo10(linha_digitavel[19, 10])
-        #
-        # linha_digitavel = put_at(linha_digitavel, 29, dv3)
-        # linha_digitavel = put_at(linha_digitavel, 19, dv2)
-        # linha_digitavel = put_at(linha_digitavel, 9, dv1)
-        #
-        # return apply_mask(linha_digitavel, self.mascara)
-    
+
+        temp = "%3s%1s%4s%10s%25s" % \
+               (self.convenio.banco, self.moeda, self.fator_vencimento, self.valor_plano, self.campo_livre)
+
+        dv = modulo11(temp, 1, 1)
+
+        return temp[:4] + dv + temp[4:]
+
+    @property
+    def linha_digitavel(self):
+        """
+        Gera a linha digitável (formatada) baseado em um código de barras.
+
+        Campo1 - 1 a 4 e 20 a 24 - Banco + Moeda + Campo Livre de 1 a 4
+        Campo2 - 25 a 34         - Campo Livre de 5 a 14
+        Campo3 - 35 a 44         - Campo Livre de 15 a 25
+        Campo4 - 5               - DV do Código de Barras
+        Campo5 - 6 a 19          - Data de vencimento + Valor do boleto
+
+        AAABC.CCCCX DDDDD.DDDDDY EEEEE.EEEEEZ K UUUUVVVVVVVVVV
+        A = Código do BB na COMPE
+        B = Código da moeda (9 - Real)
+        C = Posições 20 a 24 do código de barras
+        X = DV do Campo 1 (Módulo 10, cálculo conforme anexo 7)
+        D = Posições 25 a 34 do código de barras
+        Y = DV do Campo 2 (Módulo 10, cálculo conforme anexo 7)
+        F = Posições 35 a 44 do código de barras
+        Z =DV do Campo 3 (Módulo 10, cálculo conforme anexo 7)
+        K = DV do código de barras (Módulo 10, cálculo conforme anexo 107)
+        U = Fator de Vencimento (Módulo 10, cálculo conforme anexo 8)
+        V = Valor do título (com duas casas decimais, sem ponto e vírgula. Em caso de moeda variável, informar zeros)
+        """
+        def monta_campo(campo):
+            campo_dv = "%s%s" % (campo, modulo10(campo))
+            return "%s.%s" % (campo_dv[0:5], campo_dv[5:])
+
+        linha = self.codigo_barras
+        if not linha:
+            raise Exception("O boleto não tem código de barras")
+
+        return ' '.join([monta_campo(linha[0:4] + linha[19:24]),
+                         monta_campo(linha[24:34]),
+                         monta_campo(linha[34:44]),
+                         linha[4],
+                         linha[5:19]])
+
+def teste_me():
+    end = Endereco('12345-123', 'Av. Imortais', '666', 'Ap. 23', 'Academia', 'Brasileira', 'LT', 'BR')
+    sac = Sacado('Kelson C. Medeiros', '123.456.789-01', end, '123465 SSP/UF')
+    ced = Cedente('Kelson C. Medeiros', '12.345.678/9012-34', end)
+    ban = Banco('001', 'Banco do Brasil')
+    con = Convenio('123456', '21', ban, '1234-5', '12345-6')
+    bol = Boleto('123456789', date(2015, 12, 12), 123.45, con, ced, sac)
+    return bol
