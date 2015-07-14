@@ -4,7 +4,7 @@ boletos e não os templates. O pyaboleto é uma reescrita do YaBoleto PHP desenv
 
 ## Instalação
 ```bash
-$ pip install pyaboleto
+pip install pyaboleto
 ```
 ## Bancos suportados
 Atualmente o pyaboleto funciona com os seguintes bancos:
