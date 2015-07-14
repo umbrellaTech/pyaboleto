@@ -1,4 +1,4 @@
-# Python Yet Another Boleto - PYABoleto
+# Python Yet Another Boleto - pyaboleto
 O pyaboleto e um componente de boleto bancario em Python que oferece um conjunto de classes para gerar os dados dos
 boletos e não os templates. O pyaboleto é uma reescrita do YaBoleto PHP desenvolvido pela umbrelaTech.
 
