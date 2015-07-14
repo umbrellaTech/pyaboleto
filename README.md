@@ -1,16 +1,13 @@
-# yaboletopython
-Python Yet Another Boleto
-
-
-O PYABoleto e um componente de boleto bancario em Python que oferece um conjunto de classes para gerar os dados dos
-boletos e não os templates. O PYABoleto é uma reescrita do YaBoleto PHP desenvolvido pela umbrelaTech.
+# Python Yet Another Boleto - PYABoleto
+O pyaboleto e um componente de boleto bancario em Python que oferece um conjunto de classes para gerar os dados dos
+boletos e não os templates. O pyaboleto é uma reescrita do YaBoleto PHP desenvolvido pela umbrelaTech.
 
 ## Instalação
 ```shell
 $ pip install pyaboleto
 ```
 ## Bancos suportados
-Atualmente o PYABoleto funciona com os seguintes bancos:
+Atualmente o pyaboleto funciona com os seguintes bancos:
 
 
 | **Banco**              | **Implementado** | **Testado** |  **Homologado** |
@@ -47,8 +44,9 @@ print(bol.linha_digitavel)
 Contribua
 ----------
 
-Toda contribuição é bem vinda. Se você deseja adaptar o YaBoleto Python a algum outro banco, fique à vontade para
-explorar o código, veja como é bastante simples integrar qualquer banco à biblioteca.
+Toda contribuição é bem vinda. Se você deseja adaptar o pyaboleto a algum outro banco, fique à vontade para
+explorar o código. Para implementar as direnças do seu banco, normalmente basta extender da classe pyaboleto.Boleto
+e sobreescrever os métodos _validar_codigo_barras e campo_livre.
 
 ```shell
 git clone https://github.com/umbrellaTech/pyaboleto.git
