@@ -204,6 +204,17 @@ class Boleto:
     def valor_plano(self):
         return str.zfill(str(int(self.total * 100)), 10)
 
+    @staticmethod
+    def _validar_digitos(valor, digitos, campo, mascarar=False):
+        if mascarar:
+            if not re.match('^\d{%d}\-\d$' % digitos, valor):
+                raise PYABoletoExcpetion('O campo %s deve conter %d digitos, 1 hífen e 1 dv (%s-0)' %
+                                         (campo, digitos, str.zfill('0', digitos)))
+        else:
+            if not re.match('^\d{%d}$' % digitos, valor):
+                raise PYABoletoExcpetion('O campo %s deve conter %d digitos (%s)' %
+                                         (campo, digitos, str.zfill('0', digitos)))
+
     def _validar_codigo_barras(self):
         if not re.match('\d{3}', str(self.convenio.banco)):
             raise PYABoletoExcpetion('O banco deve conter 3 digitos (000)')
