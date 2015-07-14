@@ -39,13 +39,13 @@ class ItauBoleto(Boleto):
         super(ItauBoleto, self)._validar_codigo_barras()
 
         if not re.match('\d{3}', self.convenio.carteira):
-            raise Exception('A carteira deve conter 3 digitos (000)')
+            raise PYABoletoExcpetion('A carteira deve conter 3 digitos (000)')
 
         if not re.match('\d{4}\-\d', self.convenio.agencia):
-            raise Exception('A agencia deve conter 4 digitos, 1 hífen e 1 dv (0000-0)')
+            raise PYABoletoExcpetion('A agência deve conter 4 digitos, 1 hífen e 1 dv (0000-0)')
 
         if not re.match('\d{5}\-\d', self.convenio.conta):
-            raise Exception('A conta deve conter 5 digitos, 1 hífen e 1 dv (00000-0)')
+            raise PYABoletoExcpetion('A conta deve conter 5 digitos, 1 hífen e 1 dv (00000-0)')
 
     @property
     def campo_livre(self):

@@ -86,6 +86,11 @@ def apply_mask(text, mask):
     return buff
 
 
+class PYABoletoExcpetion(Exception):
+    def __init__(self, message):
+        super(PYABoletoExcpetion, self).__init__(message)
+
+
 class Endereco:
 
     """
@@ -232,13 +237,13 @@ class Boleto:
 
     def _validar_codigo_barras(self):
         if not re.match('\d{3}', str(self.convenio.banco)):
-            raise Exception('O convênio deve conter 3 digitos (000)')
+            raise PYABoletoExcpetion('O convênio deve conter 3 digitos (000)')
 
         if not re.match('\d', str(self.moeda)):
-            raise Exception('A moeda deve conter 1 digito (0)')
+            raise PYABoletoExcpetion('A moeda deve conter 1 digito (0)')
 
         if not re.match('\d{10}', str(self.valor_plano)):
-            raise Exception('O valor total deve ser deve ser menor que 9999999.99')
+            raise PYABoletoExcpetion('O valor total deve ser deve ser menor que 9999999.99')
 
 
     @property
@@ -262,7 +267,7 @@ class Boleto:
         campo_livre = self.campo_livre
 
         if not re.match('\d{25}', str(campo_livre)):
-            raise Exception('A moeda deve conter 25 digito (0000000000000000000000000)')
+            raise PYABoletoExcpetion('A moeda deve conter 25 digito (0000000000000000000000000)')
 
         temp = "%3s%1s%4s%10s%25s" % \
                (self.convenio.banco, self.moeda, self.fator_vencimento, self.valor_plano, campo_livre)
@@ -301,7 +306,7 @@ class Boleto:
 
         linha = self.codigo_barras
         if not linha:
-            raise Exception("O boleto não tem código de barras")
+            raise PYABoletoExcpetion("O boleto não tem código de barras")
 
         return ' '.join([monta_campo(linha[0:4] + linha[19:24]),
                          monta_campo(linha[24:34]),
