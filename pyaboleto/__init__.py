@@ -2,7 +2,7 @@
 """
 The MIT License (MIT)
 
-Copyright 2013 Umbrella Tech.
+Copyright 2015 Umbrella Tech.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -230,6 +230,17 @@ class Boleto:
     def valor_plano(self):
         return str.zfill(str(int(self.total * 100)), 10)
 
+    def _validar_codigo_barras(self):
+        if not re.match('\d{3}', str(self.convenio.banco)):
+            raise Exception('O convênio deve conter 3 digitos (000)')
+
+        if not re.match('\d', str(self.moeda)):
+            raise Exception('A moeda deve conter 1 digito (0)')
+
+        if not re.match('\d{10}', str(self.valor_plano)):
+            raise Exception('O valor total deve ser deve ser menor que 9999999.99')
+
+
     @property
     def codigo_barras(self):
         """
@@ -246,8 +257,15 @@ class Boleto:
         Total    44
         """
 
+        self._validar_codigo_barras()
+
+        campo_livre = self.campo_livre
+
+        if not re.match('\d{25}', str(campo_livre)):
+            raise Exception('A moeda deve conter 25 digito (0000000000000000000000000)')
+
         temp = "%3s%1s%4s%10s%25s" % \
-               (self.convenio.banco, self.moeda, self.fator_vencimento, self.valor_plano, self.campo_livre)
+               (self.convenio.banco, self.moeda, self.fator_vencimento, self.valor_plano, campo_livre)
 
         dv = modulo11(temp, 1, 1)
 
@@ -290,12 +308,3 @@ class Boleto:
                          monta_campo(linha[34:44]),
                          linha[4],
                          linha[5:19]])
-
-def teste_me():
-    end = Endereco('12345-123', 'Av. Imortais', '666', 'Ap. 23', 'Academia', 'Brasileira', 'LT', 'BR')
-    sac = Sacado('Kelson C. Medeiros', '123.456.789-01', end, '123465 SSP/UF')
-    ced = Cedente('Kelson C. Medeiros', '12.345.678/9012-34', end)
-    ban = Banco('001', 'Banco do Brasil')
-    con = Convenio('123456', '21', ban, '1234-5', '12345-6')
-    bol = Boleto('123456789', date(2015, 12, 12), 123.45, con, ced, sac)
-    return bol

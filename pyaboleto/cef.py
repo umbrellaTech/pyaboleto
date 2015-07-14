@@ -2,7 +2,7 @@
 """
 The MIT License (MIT)
 
-Copyright 2013 Umbrella Tech.
+Copyright 2015 Umbrella Tech.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,31 +27,22 @@ __author__ = 'Kelson da Costa Medeiros <kelsoncm@gmail.com>'
 from . import *
 
 
-class BBBoleto(Boleto):
+class BBConvenio(Convenio):
     """
     Gera o campo livre do código de barras.
     """
 
     def gerar_campo_livre(self, dados):
-        dados['campo_livre'] = str.zfill(self.numero + dados['nosso_numero'], 25)
-        if len(dados['convenio_numero']) == 4:
-            pass
-        elif len(dados['convenio_numero']) == 6:
-            if dados['carteira'] != '21':
-                dados['campo_livre'] = str.zfill(self.numero + dados['nosso_numero'] + modulo11(dados['nosso_numero'], 0, 0), 25)
-            else:
-                pass
-        elif len(dados['convenio_numero']) == 7:
-            pass
-        else:
-            super(BBConvenio, self).gerar_campo_livre(dados)
-        return dados
+        boleto = dados['boleto']
+        return "%10s%4s%11s" % (dados['nosso_numero'],
+                                boleto.agencia_cedente,
+                                boleto.conta_cedente.split('-')[0])
 
 
 def show_me():
     bol = teste_me()
     old = bol.convenio
-    bol.convenio = BBBoleto(old.banco, old.carteira, old.numero)
+    bol.convenio = BBConvenio(old.banco, old.carteira, old.numero)
     bol.gerar_codigo_barras()
     bol.gerar_linha_digitavel()
     print(bol)

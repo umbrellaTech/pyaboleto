@@ -2,7 +2,7 @@
 """
 The MIT License (MIT)
 
-Copyright 2013 Umbrella Tech.
+Copyright 2015 Umbrella Tech.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -25,18 +25,19 @@ __author__ = 'Kelson da Costa Medeiros <kelsoncm@gmail.com>'
 
 
 from . import *
-import re
+
 
 banco_itau = Banco('341', 'Banco Itaú')
 
 class ItauBoleto(Boleto):
-    """
-    Gera o campo livre do código de barras.
 
-    """
+    def _validar_codigo_barras(self):
+        """
+        Como a classe ancestral já valida os campos padronizados pela FEBRABAN basta
+        validar os campos necessários ao Campo Livre.
+        """
+        super(ItauBoleto, self)._validar_codigo_barras()
 
-    @property
-    def campo_livre(self):
         if not re.match('\d{3}', self.convenio.carteira):
             raise Exception('A carteira deve conter 3 digitos (000)')
 
@@ -46,14 +47,19 @@ class ItauBoleto(Boleto):
         if not re.match('\d{5}\-\d', self.convenio.conta):
             raise Exception('A conta deve conter 5 digitos, 1 hífen e 1 dv (00000-0)')
 
+    @property
+    def campo_livre(self):
+        """
+        Gera o campo livre do código de barras.
+        """
         agencia_conta = "%4s%5s" % (self.convenio.agencia[:-2], self.convenio.conta[:-2])
         campo_livre = "%3s%s%1s%4s%5s%1s000" % (self.convenio.carteira,
-                                                 self.nosso_numero,
-                                                 modulo10("%s%3s%8s" %
-                                                          (agencia_conta, self.convenio.carteira, self.nosso_numero)),
-                                                 self.convenio.agencia[:-2],
-                                                 self.convenio.conta[:-2],
-                                                 modulo10(agencia_conta))
+                                                self.nosso_numero,
+                                                modulo10("%s%3s%8s" %
+                                                         (agencia_conta, self.convenio.carteira, self.nosso_numero)),
+                                                self.convenio.agencia[:-2],
+                                                self.convenio.conta[:-2],
+                                                modulo10(agencia_conta))
         return campo_livre
 
 
