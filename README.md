@@ -10,16 +10,16 @@ pip install pyaboleto
 Atualmente o pyaboleto funciona com os seguintes bancos:
 
 
-| **Banco**              | **Implementado** | **Testado** |  **Homologado** |
-| ---------------------- | ---------------- | ----------- |  -------------- |
-| **Banco do Brasil**[1] | Não              | Não         |  Não            |
-| **Banrisul**           | Não              | Não         |  Não            |
-| **Bradesco**           | Não              | Não         |  Não            |
-| **Caixa Economica**    | Não              | Não         |  Não            |
-| **HSBC**               | Não              | Nao         |  Não            |
-| **Itaú**               | **Sim**          | **Sim**     |  Não            |
-| **Real**               | Não              | Não         |  Não            |
-| **Santander**          | Não              | Não         |  Não            |
+| **Banco**               | **Implementado** | **Testado** |  **Homologado** |
+| ----------------------- | ---------------- | ----------- |  -------------- |
+| **Banco do Brasil** [1] | Não              | Não         |  Não            |
+| **Banrisul**            | Não              | Não         |  Não            |
+| **Bradesco**            | Não              | Não         |  Não            |
+| **Caixa Economica**     | Não              | Não         |  Não            |
+| **HSBC**                | Não              | Nao         |  Não            |
+| **Itaú**                | **Sim**          | **Sim**     |  Não            |
+| **Real**                | Não              | Não         |  Não            |
+| **Santander**           | Não              | Não         |  Não            |
 
 [1] Convênios com 7 dígitos
 
