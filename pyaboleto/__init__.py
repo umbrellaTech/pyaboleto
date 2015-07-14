@@ -41,17 +41,6 @@ def modulo11(numero, if_dez='0', if_zero='0', mascarado=False, max_fator=9, sepa
         resto = if_zero
     return str(resto if not mascarado else '%s%s%s' % (numero, separador, resto))
 
-
-# def modulo10(number):
-#     soma = 0
-#     fato = 2
-#     for c in reversed(number):
-#         soma += int(c) * fato
-#         fato = 2 if fato == 1 else 1
-#
-#     resto = soma % 10
-#     return str(10 - resto if resto != 0 else 0)
-
 def modulo10(number):
     soma = 0
     fato = 2
@@ -64,26 +53,6 @@ def modulo10(number):
 
     resto = soma % 10
     return str(10 - resto if resto != 0 else 0)
-
-
-def put_at(string, at, char):
-    lst = list(string)
-    lst[at] = char
-    return "".join(lst)
-
-
-def apply_mask(text, mask):
-    special = ('/', '.', '-', '_', ' ')
-
-    buff = ''
-    i = 0
-    for c in mask:
-        if c in special:
-            buff += c
-        elif c == '0':
-            buff += text[i]
-            i += 1
-    return buff
 
 
 class PYABoletoExcpetion(Exception):
@@ -229,7 +198,7 @@ class Boleto:
 
     @property
     def campo_livre(self):
-        raise NotImplementedError()
+        return str.zfill('0', 25)
 
     @property
     def valor_plano(self):
@@ -237,13 +206,13 @@ class Boleto:
 
     def _validar_codigo_barras(self):
         if not re.match('\d{3}', str(self.convenio.banco)):
-            raise PYABoletoExcpetion('O convênio deve conter 3 digitos (000)')
+            raise PYABoletoExcpetion('O banco deve conter 3 digitos (000)')
 
-        if not re.match('\d', str(self.moeda)):
+        if not re.match('^\d$', str(self.moeda)):
             raise PYABoletoExcpetion('A moeda deve conter 1 digito (0)')
 
-        if not re.match('\d{10}', str(self.valor_plano)):
-            raise PYABoletoExcpetion('O valor total deve ser deve ser menor que 9999999.99')
+        if int(self.valor_plano) > 9999999999:
+            raise PYABoletoExcpetion('O valor total deve ser menor que 99999999.99')
 
 
     @property
@@ -266,8 +235,8 @@ class Boleto:
 
         campo_livre = self.campo_livre
 
-        if not re.match('\d{25}', str(campo_livre)):
-            raise PYABoletoExcpetion('A moeda deve conter 25 digito (0000000000000000000000000)')
+        if not re.match('^\d{25}$', str(campo_livre)):
+            raise PYABoletoExcpetion('O campo livre deve conter 25 digito (0000000000000000000000000)')
 
         temp = "%3s%1s%4s%10s%25s" % \
                (self.convenio.banco, self.moeda, self.fator_vencimento, self.valor_plano, campo_livre)
@@ -305,8 +274,6 @@ class Boleto:
             return "%s.%s" % (campo_dv[0:5], campo_dv[5:])
 
         linha = self.codigo_barras
-        if not linha:
-            raise PYABoletoExcpetion("O boleto não tem código de barras")
 
         return ' '.join([monta_campo(linha[0:4] + linha[19:24]),
                          monta_campo(linha[24:34]),

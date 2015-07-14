@@ -24,28 +24,28 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 __author__ = 'Kelson da Costa Medeiros <kelsoncm@gmail.com>'
 
 
-from . import *
+from pyaboleto import *
 
 
-banco_itau = Banco('341', 'Banco Itaú')
+banco_brasil = Banco('001', 'Banco do Brasil')
 
-class ItauBoleto(Boleto):
+class BBBoleto(Boleto):
 
     def _validar_codigo_barras(self):
         """
         Como a classe ancestral já valida os campos padronizados pela FEBRABAN basta
         validar os campos necessários ao Campo Livre.
         """
-        super(ItauBoleto, self)._validar_codigo_barras()
+        super(BBBoleto, self)._validar_codigo_barras()
 
         if not re.match('\d{3}', self.convenio.carteira):
-            raise Exception('A carteira deve conter 3 digitos (000)')
+            raise PYABoletoExcpetion('A carteira deve conter 3 digitos (000)')
 
         if not re.match('\d{4}\-\d', self.convenio.agencia):
-            raise Exception('A agencia deve conter 4 digitos, 1 hífen e 1 dv (0000-0)')
+            raise PYABoletoExcpetion('A agência deve conter 4 digitos, 1 hífen e 1 dv (0000-0)')
 
         if not re.match('\d{5}\-\d', self.convenio.conta):
-            raise Exception('A conta deve conter 5 digitos, 1 hífen e 1 dv (00000-0)')
+            raise PYABoletoExcpetion('A conta deve conter 5 digitos, 1 hífen e 1 dv (00000-0)')
 
     @property
     def campo_livre(self):
@@ -61,15 +61,3 @@ class ItauBoleto(Boleto):
                                                 self.convenio.conta[:-2],
                                                 modulo10(agencia_conta))
         return campo_livre
-
-
-# def show_me():
-end = Endereco('59064-520', 'Rua Senador José Ferreira de Souza', '1916', None, 'Candelária', 'Natal', 'RN')
-sac = Sacado('Nome do cidadão', '999.999.999-99', end, '999999 SSP/UF')
-ced = Cedente('Cabo Telecom', '02.952.192/0001-61', end)
-con = Convenio('123456', '109', banco_itau, '9314-9', '32857-7')
-bol = ItauBoleto('07006700', date(2015, 7, 6), 34.75, con, ced, sac)
-
-print(bol.campo_livre)
-print(bol.codigo_barras)
-print(bol.linha_digitavel)
