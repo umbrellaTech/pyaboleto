@@ -37,15 +37,9 @@ class ItauBoleto(Boleto):
         validar os campos necessários ao Campo Livre.
         """
         super(ItauBoleto, self)._validar_codigo_barras()
-
-        if not re.match('\d{3}', self.convenio.carteira):
-            raise PYABoletoExcpetion('A carteira deve conter 3 digitos (000)')
-
-        if not re.match('\d{4}\-\d', self.convenio.agencia):
-            raise PYABoletoExcpetion('A agência deve conter 4 digitos, 1 hífen e 1 dv (0000-0)')
-
-        if not re.match('\d{5}\-\d', self.convenio.conta):
-            raise PYABoletoExcpetion('A conta deve conter 5 digitos, 1 hífen e 1 dv (00000-0)')
+        Boleto._validar_digitos(self.convenio.carteira, 3, 'carteira')
+        Boleto._validar_digitos(self.convenio.agencia, 4, 'agência', True)
+        Boleto._validar_digitos(self.convenio.conta, 5, 'conta', True)
 
     @property
     def campo_livre(self):
