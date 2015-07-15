@@ -9,32 +9,27 @@ pip install pyaboleto
 ## Bancos suportados
 Atualmente o pyaboleto funciona com os seguintes bancos:
 
+| **Banco**               | **Homologado** |
+| ----------------------- | -------------- |
+| **Banco do Brasil** [1] | Não            |
+| **Caixa Economica**     | Não            |
+| **Itaú**                | Não            |
 
-| **Banco**               | **Implementado** | **Testado** |  **Homologado** |
-| ----------------------- | ---------------- | ----------- |  -------------- |
-| **Banco do Brasil** [1] | **Sim**          | **Não**     |  Não            |
-| **Banrisul**            | Não              | Não         |  Não            |
-| **Bradesco**            | Não              | Não         |  Não            |
-| **Caixa Economica**     | Não              | Não         |  Não            |
-| **HSBC**                | Não              | Nao         |  Não            |
-| **Itaú**                | **Sim**          | **Sim**     |  Não            |
-| **Real**                | Não              | Não         |  Não            |
-| **Santander**           | Não              | Não         |  Não            |
-
-[1] Convênios com 7 dígitos
+Aceitamos contribuição para os bancos **Banrisul**, **Bradesco**, **HSBC**, **Real**, **Santander**. Se você não puder
+ implementar mas tiver como testar, pode falar conosco.
 
 Demo
 ----------
 ```python
 # -*- coding: utf-8 -*-
-from pyaboleto.itau import *
+from pyaboleto.bb import *
 
 
 end = Endereco('59064-520', 'Endereço', 'Nº', 'Complemento', 'Bairro', 'Cidade', 'UF', 'Pais')
 sac = Sacado('Nome do cidadão', '999.999.999-99', end, '999999 SSP/UF')
 ced = Cedente('Nome empresa', '02.952.192/0001-61', end)
-con = Convenio('123456', '109', banco_itau, '9314-9', '32857-7')
-bol = ItauBoleto('07006700', date(2015, 7, 6), 34.75, con, ced, sac)
+con = Convenio('050094', '31', banco_brasil, '1606-0', '06809350-0')
+bol = BBBoleto('01448-0', date(2007, 12, 31), 1.0, con, None, None)
 
 print(bol.campo_livre)
 print(bol.codigo_barras)
