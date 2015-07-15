@@ -28,6 +28,7 @@ from datetime import date
 import pyaboleto
 import pyaboleto.itau
 import pyaboleto.bb
+import pyaboleto.caixa
 
 
 DATA_TESTE = date(2007, 12, 31)
@@ -232,3 +233,37 @@ class BBTestCase(BaseTestCase):
         bol = pyaboleto.bb.BBBoleto('07006700', DATA_TESTE, 34.75, con, None, None)
         with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*conta deve conter.*'):
             bol._validar_codigo_barras()
+
+
+class CaixaTestCase(BaseTestCase):
+
+    def test_caminho_feliz(self):
+        con = pyaboleto.Convenio('005507-7', None, pyaboleto.caixa.banco_caixa, '', '')
+        bol = pyaboleto.caixa.CaixaBoleto('14222333777777777', date(2006, 8, 23), 321.12, con, None, None)
+
+        self.assertEqual('0055077222133347777777771', bol.campo_livre)
+        self.assertEqual('10494324200000321120055077222133347777777771', bol.codigo_barras)
+        self.assertEqual('10490.05505 77222.133348 77777.777713 4 32420000032112', bol.linha_digitavel)
+
+    def test_convenio_errado(self):
+        con = pyaboleto.Convenio('005507', None, pyaboleto.caixa.banco_caixa, '', '')
+        bol = pyaboleto.caixa.CaixaBoleto('14222333777777777', date(2006, 8, 23), 321.12, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*código do beneficiário.*'):
+            bol._validar_codigo_barras()
+
+    def test_nosso_numero_errado(self):
+        con = pyaboleto.Convenio('005507-7', None, pyaboleto.caixa.banco_caixa, '', '')
+        bol = pyaboleto.caixa.CaixaBoleto('14/222333777777777', date(2006, 8, 23), 321.12, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*nosso número.*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('005507-7', None, pyaboleto.caixa.banco_caixa, '', '')
+        bol = pyaboleto.caixa.CaixaBoleto('34222333777777777', date(2006, 8, 23), 321.12, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*primeiro digito do nosso número.*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('005507-7', None, pyaboleto.caixa.banco_caixa, '', '')
+        bol = pyaboleto.caixa.CaixaBoleto('12222333777777777', date(2006, 8, 23), 321.12, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*segundo digito do nosso número.*'):
+            bol._validar_codigo_barras()
+

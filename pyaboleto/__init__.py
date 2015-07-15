@@ -27,6 +27,11 @@ from datetime import date
 import re
 
 
+def raiser(invalido, mensagem):
+    if invalido:
+        raise PYABoletoExcpetion(mensagem)
+
+
 def modulo11(numero, if_dez='0', if_zero='0', mascarado=False, max_fator=9, separador='-'):
     soma = 0
     fator = 2
