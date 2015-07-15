@@ -12,7 +12,7 @@ Atualmente o pyaboleto funciona com os seguintes bancos:
 
 | **Banco**               | **Implementado** | **Testado** |  **Homologado** |
 | ----------------------- | ---------------- | ----------- |  -------------- |
-| **Banco do Brasil** [1] | Não              | Não         |  Não            |
+| **Banco do Brasil** [1] | **Sim**          | **Não**     |  Não            |
 | **Banrisul**            | Não              | Não         |  Não            |
 | **Bradesco**            | Não              | Não         |  Não            |
 | **Caixa Economica**     | Não              | Não         |  Não            |
