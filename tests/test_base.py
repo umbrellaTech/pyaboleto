@@ -172,3 +172,63 @@ class BBTestCase(BaseTestCase):
         self.assertEqual('0000001050094123465789031', bol.campo_livre)
         self.assertEqual('00192373700000001000000001050094123465789031', bol.codigo_barras)
         self.assertEqual('00190.00009 01050.094125 34657.890314 2 37370000000100', bol.linha_digitavel)
+
+    def test_convenio_errada(self):
+        con = pyaboleto.Convenio('123', '31', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('07006700', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*4 \(0000\), 6 \(000000\) ou 7 \(0000000\).*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('123456789', '31', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('07006700', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*4 \(0000\), 6 \(000000\) ou 7 \(0000000\).*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('123456', '21', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('12345678901234567-8', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*Nosso Número deve conter 17 .*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('1234567', '21', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('12345678901234567-8', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*Número do Convênio deve ter 6 posições.*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('123456', '31', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('1', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*Nosso Número deve conter 5 dígitos.*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('1234', '31', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('1', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*Nosso Número deve conter 7 dígitos.*'):
+            bol._validar_codigo_barras()
+
+        con = pyaboleto.Convenio('1234567', '31', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('1', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*Nosso Número deve conter 10 dígitos.*'):
+            bol._validar_codigo_barras()
+
+    def test_nosso_numero_errado(self):
+        con = pyaboleto.Convenio('123456', '021', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('07006700', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*carteira deve conter.*'):
+            bol._validar_codigo_barras()
+
+    def test_carteira_errada(self):
+        con = pyaboleto.Convenio('123456', '021', pyaboleto.bb.banco_brasil, '1234-5', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('07006700', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*carteira deve conter.*'):
+            bol._validar_codigo_barras()
+
+    def test_agencia_errada(self):
+        con = pyaboleto.Convenio('123456', '21', pyaboleto.bb.banco_brasil, '12345-6', '12345678-9')
+        bol = pyaboleto.bb.BBBoleto('07006700', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*agência deve conter.*'):
+            bol._validar_codigo_barras()
+
+    def test_conta_errada(self):
+        con = pyaboleto.Convenio('123456', '21', pyaboleto.bb.banco_brasil, '1234-5', '1234-6')
+        bol = pyaboleto.bb.BBBoleto('07006700', DATA_TESTE, 34.75, con, None, None)
+        with self.assertRaisesRegexp(pyaboleto.PYABoletoExcpetion, '.*conta deve conter.*'):
+            bol._validar_codigo_barras()

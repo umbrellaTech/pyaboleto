@@ -31,13 +31,10 @@ banco_brasil = Banco('001', 'Banco do Brasil')
 
 class BBBoleto(Boleto):
 
-    def _validar_convenio(self, tam_conv, tam_nos_num, masc_exp=', 1 hífen e 1 dv', masc_dv='-0'):
-        if not re.match('^\d{%d}$' % tam_conv, self.convenio.numero):
-            raise PYABoletoExcpetion('Para convênio de %d posições o número do convênio deve conter '
-                                     'apenas dígitos (%s)' % (tam_conv, str.zfill('0', tam_conv)))
+    def _validar_convenio(self, tam_conv, tam_nos_num):
         if not re.match('^\d{%d}\-\d$' % tam_nos_num, self.nosso_numero):
-            raise PYABoletoExcpetion('Para convênio de %d posições o Nosso Número deve conter '
-                                     '%d dígitos%s (0000000000%s)' % (tam_conv, tam_nos_num, masc_exp, masc_dv))
+            raise PYABoletoExcpetion('Para convênio de %d posições o Nosso Número deve conter %d dígitos, '
+                                     '1 hífen e 1 dv (%s-0)' % (tam_conv, tam_nos_num, str.zfill('0', tam_nos_num)))
 
     def _validar_codigo_barras(self):
         """
@@ -48,21 +45,23 @@ class BBBoleto(Boleto):
 
         self._validar_digitos(self.convenio.carteira, 2, 'carteira')
         self._validar_digitos(self.convenio.agencia, 4, 'agência', True)
-        self._validar_digitos(self.convenio.conta, 8, 'agência', True)
+        self._validar_digitos(self.convenio.conta, 8, 'conta', True)
 
         if len(self.convenio.numero) not in (4, 6, 7):
-            raise PYABoletoExcpetion('O número do convênio deve ter 4 (0000), 6 (000000) ou 7 dígitos (0000000)')
+            raise PYABoletoExcpetion('O número do convênio deve ter 4 (0000), 6 (000000) ou 7 (0000000) dígitos')
 
         tam_conv = len(self.convenio.numero)
+        if self.convenio.carteira == '21':
+            if tam_conv != 6:
+                raise PYABoletoExcpetion('Para Carteiras 16 e 18 (Tipo de Modalidade de Cobrança 21) '
+                                         'o Número do Convênio deve ter 6 posições')
+            if not re.match('^\d{17}$', self.nosso_numero):
+                raise PYABoletoExcpetion('Para Carteiras 16 e 18 (Tipo de Modalidade de Cobrança 21) o '
+                                         'Nosso Número deve conter 17 dígitos sem hífen e sem 1 dv (00000000000000000)')
         if tam_conv == 4:
             self._validar_convenio(tam_conv, 7)
         elif tam_conv == 6:
-            if self.convenio.carteira == '21':
-                if not re.match('^\d{17}$', self.nosso_numero):
-                    raise PYABoletoExcpetion('Para Carteiras 16 e 18 (Tipo de Modalidade de Cobrança 21) '
-                                             'o Número do Convênio deve ter 6 posições e o '
-                                             'Nosso Número 17 dígitos sem hífen e sem 1 dv (00000000000000000)')
-            else:
+            if self.convenio.carteira != '21':
                 self._validar_convenio(tam_conv, 5)
         elif tam_conv == 7:
             self._validar_convenio(tam_conv, 10)
