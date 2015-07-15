@@ -16,7 +16,7 @@ Atualmente o pyaboleto funciona com os seguintes bancos:
 | **Itaú**                | Não            |
 
 Aceitamos contribuição para os bancos **Banrisul**, **Bradesco**, **HSBC**, **Real**, **Santander**. Se você não puder
- implementar mas tiver como testar, pode falar conosco.
+ implementar mas tiver como homologar, pode falar conosco.
 
 Demo
 ----------
@@ -29,7 +29,7 @@ end = Endereco('59064-520', 'Endereço', 'Nº', 'Complemento', 'Bairro', 'Cidade
 sac = Sacado('Nome do cidadão', '999.999.999-99', end, '999999 SSP/UF')
 ced = Cedente('Nome empresa', '02.952.192/0001-61', end)
 con = Convenio('050094', '31', banco_brasil, '1606-0', '06809350-0')
-bol = BBBoleto('01448-0', date(2007, 12, 31), 1.0, con, None, None)
+bol = BBBoleto('01448-0', date(2007, 12, 31), 1.0, con, ced, sac)
 
 print(bol.campo_livre)
 print(bol.codigo_barras)
