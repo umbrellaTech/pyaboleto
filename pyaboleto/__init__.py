@@ -134,9 +134,10 @@ class Banco:
 
     # ban = Banco('001', 'Banco do Brasil')
 
-    def __init__(self, numero, nome):
+    def __init__(self, numero, nome, codigo):
         self.numero = numero
         self.nome = nome
+        self.codigo = codigo
 
     def __str__(self):
         return "%s" % self.numero
@@ -174,23 +175,31 @@ class Boleto:
         self.valor_documento = valor_documento
         self.data_vencimento = data_vencimento
         self.data_documento = date.today()
+        self.nosso_documento = None
         self.nosso_numero = nosso_numero
         self.taxa = 0
         self.desconto = 0
         self.outra_deducoes = 0
         self.multa = 0
         self.outros_acrescimos = 0
-        self.instrucoes = ''
+        self.instrucoes = None
         self.demonstrativo = ''
         self.quantidade = 0
-        self.aceite = None
-        self.especie = None
-        self.local_pagamento = None
+        self.aceite = 'N'
+        self.especie_documento = None
+        self.local_pagamento = 'Pagável em qualquer banco até o vencimento'
         self.erros = []
         self.moeda = '9'
 
     def __str__(self):
         return self.linha_digitavel
+
+    @property
+    def especie_moeda(self):
+        if self.moeda == '9':
+            return 'R$'
+        else:
+            return 'USD$'
 
     @property
     def total(self):

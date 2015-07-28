@@ -31,12 +31,11 @@ banco_itau = Banco('341', 'Banco Itaú')
 
 class ItauBoleto(Boleto):
 
-    def _validar_codigo_barras(self):
+    def _validar_campo_livre(self):
         """
         Como a classe ancestral já valida os campos padronizados pela FEBRABAN basta
         validar os campos necessários ao Campo Livre.
         """
-        super(ItauBoleto, self)._validar_codigo_barras()
         Boleto._validar_digitos(self.convenio.carteira, 3, 'carteira')
         Boleto._validar_digitos(self.convenio.agencia, 4, 'agência', True)
         Boleto._validar_digitos(self.convenio.conta, 5, 'conta', True)
@@ -46,6 +45,7 @@ class ItauBoleto(Boleto):
         """
         Gera o campo livre do código de barras.
         """
+        self._validar_campo_livre()
         agencia_conta = "%4s%5s" % (self.convenio.agencia[:-2], self.convenio.conta[:-2])
         campo_livre = "%3s%s%1s%4s%5s%1s000" % (self.convenio.carteira,
                                                 self.nosso_numero,

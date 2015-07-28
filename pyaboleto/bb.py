@@ -27,7 +27,7 @@ __author__ = 'Kelson da Costa Medeiros <kelsoncm@gmail.com>'
 from pyaboleto import *
 
 
-banco_brasil = Banco('001', 'Banco do Brasil')
+banco_brasil = Banco('001', 'Banco do Brasil', '001-9')
 
 class BBBoleto(Boleto):
 
@@ -36,13 +36,11 @@ class BBBoleto(Boleto):
             raise PYABoletoExcpetion('Para convênio de %d posições o Nosso Número deve conter %d dígitos, '
                                      '1 hífen e 1 dv (%s-0)' % (tam_conv, tam_nos_num, str.zfill('0', tam_nos_num)))
 
-    def _validar_codigo_barras(self):
+    def _validar_campo_livre(self):
         """
         Como a classe ancestral já valida os campos padronizados pela FEBRABAN basta
         validar os campos necessários ao Campo Livre.
         """
-        super(BBBoleto, self)._validar_codigo_barras()
-
         self._validar_digitos(self.convenio.carteira, 2, 'carteira')
         self._validar_digitos(self.convenio.agencia, 4, 'agência', True)
         self._validar_digitos(self.convenio.conta, 8, 'conta', True)
@@ -71,7 +69,7 @@ class BBBoleto(Boleto):
         """
         Gera o campo livre do código de barras.
         """
-        self._validar_codigo_barras()
+        self._validar_campo_livre()
         sem_dv = -2
         if len(self.convenio.numero) == 4:
             return '%4s%7s%4s%8s%2s' % (self.convenio.numero,

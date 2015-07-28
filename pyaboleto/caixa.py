@@ -31,13 +31,11 @@ banco_caixa = Banco('104', 'Caixa')
 
 class CaixaBoleto(Boleto):
 
-    def _validar_codigo_barras(self):
+    def _validar_campo_livre(self):
         """
         Como a classe ancestral já valida os campos padronizados pela FEBRABAN basta
         validar os campos necessários ao Campo Livre.
         """
-        super(CaixaBoleto, self)._validar_codigo_barras()
-
         self._validar_digitos(self.convenio.numero, 6, 'código do beneficiário', True)
         self._validar_digitos(self.nosso_numero, 17, 'nosso número')
         raiser(self.nosso_numero[0] not in ('1', '2'), 'O primeiro digito do nosso número deve ser 1 ou 2.')
@@ -48,7 +46,7 @@ class CaixaBoleto(Boleto):
         """
         Gera o campo livre do código de barras.
         """
-        self._validar_codigo_barras()
+        self._validar_campo_livre()
         sem_dv = -2
         campo_livre = '%6s%1s%3s%1s%3s%1s%9s' % (self.convenio.numero[:sem_dv],
                                                  self.convenio.numero[-1],
